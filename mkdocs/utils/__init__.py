@@ -223,10 +223,12 @@ def is_error_template(path):
 
 @functools.lru_cache(maxsize=None)
 def _norm_parts(path):
-    if not path.startswith('/'):
-        path = '/' + path
-    path = posixpath.normpath(path)[1:]
-    return path.split('/') if path else []
+    path = posixpath.normpath(path)
+
+    if path == "." or path == "":
+        return []
+
+    return path.split('/')
 
 
 def get_relative_url(url, other):
@@ -247,9 +249,10 @@ def get_relative_url(url, other):
     other_parts = _norm_parts(other)
     dest_parts = _norm_parts(url)
     common = 0
-    for a, b in zip(other_parts, dest_parts):
+    for ii, (a, b) in enumerate(zip(other_parts, dest_parts)):
         if a != b:
             break
+
         common += 1
 
     rel_parts = ['..'] * (len(other_parts) - common) + dest_parts[common:]
